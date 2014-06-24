@@ -34,6 +34,7 @@ def change_manifest(lang):
     manifest['locales'] = {'en-US': {'description': description, 'name':
         description}}
     manifest['type'] = "privileged"
+    manifest['inputs'].pop("number")
 
     with open(manifest_file_name, 'w') as file_:
         json.dump(manifest, file_)
