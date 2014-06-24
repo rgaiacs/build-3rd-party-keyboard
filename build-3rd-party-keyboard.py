@@ -41,7 +41,7 @@ def change_manifest(lang):
 def build_3rd_keyboard(lang):
     try:
         shutil.rmtree(os.path.join(GAIA_PATH, BUILD_PATH, "{0}-keyboard".format(lang))) 
-    except shutil.Error:
+    except (shutil.Error, FileNotFoundError):
         pass
     shutil.copytree(os.path.join(GAIA_PATH, BUILD_PATH, "keyboard"),
             os.path.join(GAIA_PATH, BUILD_PATH, "{0}-keyboard".format(lang))) 
@@ -55,8 +55,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Build 3rd party keyboard")
     parser.add_argument("--gaia", default='.', type=str, help="Path to Gaia")
     parser.add_argument("--build", default='build_stage', type=str, help="Path to build repository")
-    parser.add_argument("-l", "--languages", default=['en'], type=list,
-    help="List of languages to build")
+    parser.add_argument("-l", "--languages", default=['en'], nargs='+', type=str,
+            help="List of languages to build")
     parser.add_argument("--list", action="store_true", help="List available languages")
     args = parser.parse_args()
 
