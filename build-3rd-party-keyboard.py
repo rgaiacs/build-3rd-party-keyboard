@@ -12,6 +12,8 @@ import shutil
 from subprocess import call
 import argparse
 import json
+import fileinput
+import re
 
 def get_available_languages():
     languages_available = os.listdir(os.path.join(GAIA_PATH,
@@ -30,11 +32,15 @@ def change_manifest(lang):
 
     layout_name = manifest['inputs'][lang]['name']
     description = '{0} Gaia Official Keyboard'.format(layout_name)
+    name = 'Isolated {0} Keyboard'.format(layout_name)
+    manifest['name'] = name
     manifest['description'] = description
     manifest['locales'] = {'en-US': {'description': description, 'name':
         description}}
     manifest['type'] = "privileged"
     manifest['inputs'].pop("number")
+
+    del manifest['permissions']['settings']
 
     with open(manifest_file_name, 'w') as file_:
         json.dump(manifest, file_)
@@ -47,6 +53,41 @@ def build_3rd_keyboard(lang):
     shutil.copytree(os.path.join(GAIA_PATH, BUILD_PATH, "keyboard"),
             os.path.join(GAIA_PATH, BUILD_PATH, "{0}-keyboard".format(lang))) 
     change_manifest(lang)
+
+def add_shim_for_mozSettings(lang):
+
+    def add_shimscript(f):
+        match = None
+        shimadded = False
+        for line in f:
+            newline = line
+            if not shimadded:
+                match = re.match(r'(\s*)<script', line)
+                if match:
+                    indentation = match.group(1)
+                    newline = indentation + shimscript + '\n' + line
+                    shimadded = True
+
+            print(newline, end='')
+
+    keyboardfolder = "{0}-keyboard".format(lang)
+    keyboardpath = os.path.join(GAIA_PATH, BUILD_PATH, keyboardfolder)
+    shimsource = os.path.join(os.path.dirname(__file__), "shim_mozSettings.js")
+    shimtarget = os.path.join(keyboardpath, "js", "vendor", "shimmozsettings")
+    os.makedirs(shimtarget)
+    shutil.copy(shimsource, shimtarget)
+
+    shimscript = '<script defer type="text/javascript" ' +\
+                 'src="js/vendor/shimmozsettings/shim_mozSettings.js"></script>'
+
+
+    indexpath = os.path.join(keyboardpath, "index.html")
+    with fileinput.input(indexpath, inplace=True) as index:
+        add_shimscript(index)
+
+    settingspath = os.path.join(keyboardpath, "settings.html")
+    with fileinput.input(settingspath, inplace=True) as settings:
+        add_shimscript(settings)
 
 if __name__ == "__main__":
     global GAIA_PATH
@@ -72,3 +113,4 @@ if __name__ == "__main__":
         for lang in LANGUAGES:
             build_keyboard(lang)
             build_3rd_keyboard(lang)
+            add_shim_for_mozSettings(lang)
