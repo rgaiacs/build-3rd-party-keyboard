@@ -27,22 +27,23 @@ def build_keyboard(lang):
 def change_manifest(lang):
     manifest_file_name = os.path.join(GAIA_PATH, BUILD_PATH,
         "{0}-keyboard".format(lang), "manifest.webapp")
-    with open(manifest_file_name, 'r') as file_:
+    with open(manifest_file_name, "r") as file_:
         manifest = json.load(file_)
 
-    layout_name = manifest['inputs'][lang]['name']
-    description = '{0} Gaia Official Keyboard'.format(layout_name)
-    name = 'Isolated {0} Keyboard'.format(layout_name)
-    manifest['name'] = name
-    manifest['description'] = description
-    manifest['locales'] = {'en-US': {'description': description, 'name':
+    layout_name = manifest["inputs"][lang]["name"]
+    description = "{0} Gaia Official Keyboard".format(layout_name)
+    name = "Isolated {0} Keyboard".format(layout_name)
+    manifest["name"] = name
+    manifest["description"] = description
+    manifest["locales"] = {"en-US": {"description": description, "name":
         description}}
-    manifest['type'] = "privileged"
-    manifest['inputs'].pop("number")
+    manifest["type"] = "privileged"
+    manifest["permissions"]["input"]["description"] = "Required for input text"
+    manifest["inputs"].pop("number")
 
-    del manifest['permissions']['settings']
+    del manifest["permissions"]["settings"]
 
-    with open(manifest_file_name, 'w') as file_:
+    with open(manifest_file_name, "w") as file_:
         json.dump(manifest, file_)
 
 def build_3rd_keyboard(lang):
@@ -62,13 +63,13 @@ def add_shim_for_mozSettings(lang):
         for line in f:
             newline = line
             if not shimadded:
-                match = re.match(r'(\s*)<script', line)
+                match = re.match(r"(\s*)<script", line)
                 if match:
                     indentation = match.group(1)
-                    newline = indentation + shimscript + '\n' + line
+                    newline = indentation + shimscript + "\n" + line
                     shimadded = True
 
-            print(newline, end='')
+            print(newline, end="")
 
     keyboardfolder = "{0}-keyboard".format(lang)
     keyboardpath = os.path.join(GAIA_PATH, BUILD_PATH, keyboardfolder)
@@ -77,8 +78,8 @@ def add_shim_for_mozSettings(lang):
     os.makedirs(shimtarget)
     shutil.copy(shimsource, shimtarget)
 
-    shimscript = '<script defer type="text/javascript" ' +\
-                 'src="js/vendor/shimmozsettings/shim_mozSettings.js"></script>'
+    shimscript = "<script defer type="text/javascript" " +\
+                 "src="js/vendor/shimmozsettings/shim_mozSettings.js"></script>"
 
 
     indexpath = os.path.join(keyboardpath, "index.html")
@@ -95,9 +96,9 @@ if __name__ == "__main__":
     global LANGUAGES
 
     parser = argparse.ArgumentParser(description="Build 3rd party keyboard")
-    parser.add_argument("--gaia", default='.', type=str, help="Path to Gaia")
-    parser.add_argument("--build", default='build_stage', type=str, help="Path to build repository")
-    parser.add_argument("-l", "--languages", default=['en'], nargs='+', type=str,
+    parser.add_argument("--gaia", default=".", type=str, help="Path to Gaia")
+    parser.add_argument("--build", default="build_stage", type=str, help="Path to build repository")
+    parser.add_argument("-l", "--languages", default=["en"], nargs="+", type=str,
             help="List of languages to build")
     parser.add_argument("--list", action="store_true", help="List available languages")
     args = parser.parse_args()
