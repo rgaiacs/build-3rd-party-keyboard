@@ -23,10 +23,12 @@ native keyboard.
 
 - Run the script
 
-    $ 3rd-keyboards/build-3rd-party-keyboard.py -l lang
+    $ build-3rd-party-keyboard.py -l lang
 
-The keyboard was create at `build_stage/lang-keyboard`. You can zip it and send
-to [Firefox Marketplace](http://marketplace.firefox.com/).
+  where `lang` is the language that you want to build.
+
+The keyboard was create at `/path/to/your/gaia/build_stage/lang-keyboard`. You
+can zip it and send to [Firefox Marketplace](http://marketplace.firefox.com/).
 
 ## Install 3rd party keyboard at device
 
