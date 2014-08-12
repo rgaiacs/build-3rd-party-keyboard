@@ -25,8 +25,10 @@ def build_keyboard(lang):
     call("GAIA_KEYBOARD_LAYOUTS={0} APP=keyboard make".format(lang), shell=True) 
 
 def change_manifest(lang):
-    manifest_file_name = os.path.join(GAIA_PATH, BUILD_PATH,
-        "{0}-keyboard".format(lang), "manifest.webapp")
+    build_full_path = os.path.join(GAIA_PATH, BUILD_PATH,
+            "{0}-keyboard".format(lang))
+    manifest_file_name = os.path.join(build_full_path,
+        "manifest.webapp")
     with open(manifest_file_name, "r") as file_:
         manifest = json.load(file_)
 
@@ -47,6 +49,19 @@ def change_manifest(lang):
     manifest["inputs"].pop("number")
 
     del manifest["permissions"]["settings"]
+
+    # Handle icon
+    if ICON_PATH and os.path.isfile(ICON_PATH):
+        manifest["icons"] = {}
+        appicon_dir = "icons"
+        os.makedirs(os.path.join(build_full_path, appicon_dir))
+        for size in [32, 60, 90, 120, 128, 256]:
+            appicon_path = os.path.join(appicon_dir,
+                    "keyboard-{0}.png".format(size))
+            call("convert -density 512 -background none {0} {1}".format(
+                ICON_PATH, os.path.join(build_full_path, appicon_path), size),
+                shell=True)
+            manifest["icons"][size] = '/{0}'.format(appicon_path)
 
     with open(manifest_file_name, "w") as file_:
         json.dump(manifest, file_, indent=2, sort_keys=True)
@@ -100,6 +115,7 @@ if __name__ == "__main__":
     global DEVELOPER_NAME
     global DEVELOPER_URL
     global GAIA_PATH
+    global ICON_PATH
     global LANGUAGES
     global OFFICIAL_BUILD
 
@@ -117,6 +133,8 @@ if __name__ == "__main__":
     parser.add_argument("--developer-url", type=str,
             default="https://github.com/john-doe/gaia",
             help="URL of the developer page")
+    parser.add_argument("--icon", default=None,
+            help="Path to image to be used as icon")
     parser.add_argument("--official", action="store_true",
             help="Only to be used by Gaia team release manager")
     args = parser.parse_args()
@@ -125,6 +143,7 @@ if __name__ == "__main__":
     DEVELOPER_NAME = args.developer_name
     DEVELOPER_URL = args.developer_url
     GAIA_PATH = args.gaia
+    ICON_PATH = args.icon
     LANGUAGES = args.languages
     OFFICIAL_BUILD = args.official
 
