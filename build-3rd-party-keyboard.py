@@ -44,7 +44,7 @@ def change_manifest(lang):
     del manifest["permissions"]["settings"]
 
     with open(manifest_file_name, "w") as file_:
-        json.dump(manifest, file_)
+        json.dump(manifest, file_, indent=2, sort_keys=True)
 
 def build_3rd_keyboard(lang):
     try:
