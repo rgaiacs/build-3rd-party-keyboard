@@ -78,8 +78,8 @@ def add_shim_for_mozSettings(lang):
     os.makedirs(shimtarget)
     shutil.copy(shimsource, shimtarget)
 
-    shimscript = "<script defer type="text/javascript" " +\
-                 "src="js/vendor/shimmozsettings/shim_mozSettings.js"></script>"
+    shimscript = "<script defer type=\"text/javascript\" " +\
+                 "src=\"js/vendor/shimmozsettings/shim_mozSettings.js\"></script>"
 
 
     indexpath = os.path.join(keyboardpath, "index.html")
