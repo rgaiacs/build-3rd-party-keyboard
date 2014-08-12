@@ -31,12 +31,17 @@ def change_manifest(lang):
         manifest = json.load(file_)
 
     layout_name = manifest["inputs"][lang]["name"]
-    description = "{0} Gaia Official Keyboard".format(layout_name)
-    name = "Isolated {0} Keyboard".format(layout_name)
+    if OFFICIAL_BUILD:
+        description = "{0} Gaia Official Keyboard".format(layout_name)
+    else:
+        description = "{0} Keyboard".format(layout_name)
+    name = "{0} Keyboard".format(layout_name)
     manifest["name"] = name
     manifest["description"] = description
+    manifest["developer"]["name"] = DEVELOPER_NAME
+    manifest["developer"]["url"] = DEVELOPER_URL
     manifest["locales"] = {"en-US": {"description": description, "name":
-        description}}
+        name}}
     manifest["type"] = "privileged"
     manifest["permissions"]["input"]["description"] = "Required for input text"
     manifest["inputs"].pop("number")
@@ -91,21 +96,41 @@ def add_shim_for_mozSettings(lang):
         add_shimscript(settings)
 
 if __name__ == "__main__":
-    global GAIA_PATH
     global BUILD_PATH
+    global DEVELOPER_NAME
+    global DEVELOPER_URL
+    global GAIA_PATH
     global LANGUAGES
+    global OFFICIAL_BUILD
 
     parser = argparse.ArgumentParser(description="Build 3rd party keyboard")
     parser.add_argument("--gaia", default=".", type=str, help="Path to Gaia")
-    parser.add_argument("--build", default="build_stage", type=str, help="Path to build repository")
+    parser.add_argument("--build", default="build_stage", type=str,
+            help="Path to build repository")
     parser.add_argument("-l", "--languages", default=["en"], nargs="+", type=str,
             help="List of languages to build")
-    parser.add_argument("--list", action="store_true", help="List available languages")
+    parser.add_argument("--list", action="store_true",
+            help="List available languages")
+    parser.add_argument("--developer-name", type=str,
+            default="John Doe",
+            help="Name of the developer")
+    parser.add_argument("--developer-url", type=str,
+            default="https://github.com/john-doe/gaia",
+            help="URL of the developer page")
+    parser.add_argument("--official", action="store_true",
+            help="Only to be used by Gaia team release manager")
     args = parser.parse_args()
 
-    GAIA_PATH = args.gaia
     BUILD_PATH = args.build
+    DEVELOPER_NAME = args.developer_name
+    DEVELOPER_URL = args.developer_url
+    GAIA_PATH = args.gaia
     LANGUAGES = args.languages
+    OFFICIAL_BUILD = args.official
+
+    if OFFICIAL_BUILD:
+        DEVELOPER_NAME = "The Gaia Team"
+        DEVELOPER_URL = "https://github.com/mozilla-b2g/gaia"
 
     if args.list:
         for lang in get_available_languages():
