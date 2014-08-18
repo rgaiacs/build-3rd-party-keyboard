@@ -59,8 +59,8 @@ def change_manifest(lang):
         for size in [32, 60, 90, 120, 128, 256]:
             appicon_path = os.path.join(appicon_dir,
                     "keyboard-{0}.png".format(size))
-            call("convert -density 512 -background none {0} {1}".format(
-                ICON_PATH, os.path.join(build_full_path, appicon_path), size),
+            call("convert -density 512 -background none {0} -resize {1} {2}".format(
+                ICON_PATH, size, os.path.join(build_full_path, appicon_path)),
                 shell=True)
             manifest["icons"][size] = '/{0}'.format(appicon_path)
 
