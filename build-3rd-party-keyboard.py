@@ -47,6 +47,7 @@ def change_manifest(lang):
     manifest["type"] = "privileged"
     manifest["permissions"]["input"]["description"] = "Required for input text"
     manifest["inputs"].pop("number")
+    manifest["version"] = VERSION
 
     del manifest["permissions"]["settings"]
 
@@ -118,6 +119,7 @@ if __name__ == "__main__":
     global ICON_PATH
     global LANGUAGES
     global OFFICIAL_BUILD
+    global VERSION
 
     parser = argparse.ArgumentParser(description="Build 3rd party keyboard")
     parser.add_argument("--gaia", default=".", type=str, help="Path to Gaia")
@@ -135,6 +137,8 @@ if __name__ == "__main__":
             help="URL of the developer page")
     parser.add_argument("--icon", default=None,
             help="Path to image to be used as icon")
+    parser.add_argument("--version", type=str, default="1.0.0",
+            help="The version of the app")
     parser.add_argument("--official", action="store_true",
             help="Only to be used by Gaia team release manager")
     args = parser.parse_args()
@@ -146,6 +150,7 @@ if __name__ == "__main__":
     ICON_PATH = args.icon
     LANGUAGES = args.languages
     OFFICIAL_BUILD = args.official
+    VERSION = args.version
 
     if OFFICIAL_BUILD:
         DEVELOPER_NAME = "The Gaia Team"
